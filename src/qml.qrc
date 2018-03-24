@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/TitleScreen.qml</file>
+        <file>qml/MenuButton.qml</file>
+        <file>qml/ErrorMessage.qml</file>
+        <file>qml/SettingsScreen.qml</file>
+        <file>qml/SettingsComboBox.qml</file>
+        <file>qml/GameScreen.qml</file>
+        <file>qml/GameButton.qml</file>
+        <file>qml/GameSquare.qml</file>
+	<file>qml/GameWall.qml</file>
+	<file>qml/Player.qml</file>
+	<file>qml/HealthBar.qml</file>
+        <file>javascript/theme.js</file>
+        <file>javascript/gameboard.js</file>
+	<file>img/background.jpg</file>
+	<file>img/1st_edition_gameboard.jpg</file>
+	<file>img/2nd_edition_gameboard.jpg</file>
+	<file>img/gamesquare_fire.jpg</file>
+	<file>img/gamesquare_questionmark.jpg</file>
+	<file>img/gamesquare_realalert.jpg</file>
+	<file>img/gamesquare_smoke.jpg</file>
+	<file>img/gamewall_damaged.jpg</file>
+	<file>img/gamewall_destroyed.jpg</file>
+	<file>img/gamewall_opened.jpg</file>
+	<file>img/gamewall_closed.jpg</file>
+	<file>img/player.jpg</file>
+	<file>img/icon.ico</file>
+    </qresource>
+</RCC>
