@@ -45,19 +45,19 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
                 proj.calibrate(self.calibrated_cb)
             else:
                 rospy.loginfo("Projector " + proj.proj_id + " already calibrated.")
-                #self.continue_calibration(proj)                
+                proj.calib_pub.publish(True)              
 
-        self.continue_calibration(proj)
-        rospy.loginfo("Ready")
+        rospy.loginfo("Projector is ready")
 
     def calibrated_cb(self, proj):
 
         proj.calib_pub.publish(True)
         rospy.loginfo("Projector " + proj.proj_id + " calibrated: " + str(proj.is_calibrated()))
 
-    def continue_calibration(self, proj):
+    def continue_calibration(self, scene):
 
-        self.touches = [TouchCalibrator()]
+        self.scene = scene
+        self.touches = [TouchCalibrator(self.scene)]
 
         rospy.loginfo("Waiting for touch nodes...")
         for touch in self.touches:
@@ -69,8 +69,8 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
 
         rospy.loginfo("Some projector node just connected.")
         self.connections.append(self.tcpServer.nextPendingConnection())
-        self.connections[-1].setSocketOption(
-            QtNetwork.QAbstractSocket.LowDelayOption, 1)
+        self.connections[-1].setSocketOption(QtNetwork.QAbstractSocket.LowDelayOption, 1)
+        self.continue_calibration(self.rootObjects()[0])
 
         # TODO deal with disconnected clients!
         # self.connections[-1].disconnected.connect(clientConnection.deleteLater)

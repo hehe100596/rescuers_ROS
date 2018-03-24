@@ -3,7 +3,7 @@
 # Edited by xbacov04
 
 import rospy
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from art_msgs.srv import TouchCalibrationPoints, TouchCalibrationPointsResponse
 from std_msgs.msg import Bool, Empty as EmptyMsg
 from std_srvs.srv import Empty as EmptySrv, EmptyRequest
@@ -13,9 +13,13 @@ class TouchCalibrator(QtCore.QObject):
 
     touch_calibration_points_signal = QtCore.pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, scene):
 
         super(TouchCalibrator, self).__init__()
+
+        self.scene = scene
+        #self.rpm = rospy.get_param("~rpm")
+        self.rpm = 2000
 
         self.touch_ns = "/art/interface/touchtable/"
         self.touch_calib_ns = "/art/interface/projected_gui/touch_calibration"
@@ -24,7 +28,6 @@ class TouchCalibrator(QtCore.QObject):
         self.touched_sub = None
         self.calibrating_touch = False
         self.touch_calibration_points = None
-        self.point_item = None
 
         self.touch_calibration_points_signal.connect(self.touch_calibration_points_evt)
 
@@ -45,9 +48,6 @@ class TouchCalibrator(QtCore.QObject):
 
     def touch_calibration_points_cb(self, req):
 
-        #for it in self.scene.items():
-        #    it.setVisible(False)
-
         self.touched_sub = rospy.Subscriber(self.touch_ns + "touch_detected", EmptyMsg, self.touch_detected_cb, queue_size=10)
         self.touch_calibration_points = []
 
@@ -65,32 +65,14 @@ class TouchCalibrator(QtCore.QObject):
         self.touch_calibrating = True
 
         try:
+            rospy.loginfo("Switch to application window, wait until white point appears and press it to calibrate touch.")
             p = self.touch_calibration_points.pop(0)
-            # Add drawing of that point to scene
-            #self.point_item = QtGui.QGraphicsEllipseItem(0, 0, 0.01*self.scene.rpm, 0.01*self.scene.rpm, None, self.scene)
-            #self.point_item.setBrush(QtGui.QBrush(QtCore.Qt.white, style = QtCore.Qt.SolidPattern))
-            #self.point_item.setPos(p[0]*self.scene.rpm, (self.height - p[1])*self.scene.rpm)
-            rospy.loginfo("Wait until white point appears and press it to calibrate touch.")
+            self.scene.drawPoint(0.01*self.rpm, p[0]*self.rpm, self.scene.height() - p[1]*self.rpm)
         except IndexError:
-            #for it in self.scene.items():
-                # TODO fix this - in makes visible even items that are invisible by purpose
-            #    it.setVisible(True)
-            #    self.touched_sub.unregister()
+            self.scene.stopCalibration()
             self.touched_sub.unregister()
-            rospy.loginfo("There are no white points to press.")
+            rospy.loginfo("Touch calibration has been completed.")
 
     def touch_detected_cb(self, data):
 
-        try:
-            p = self.touch_calibration_points.pop(0)
-            # Delete drawing of that point from scene and draw another one
-            rospy.loginfo("Press another white point to calibrate touch.")
-        except IndexError:
-            #self.scene.removeItem(self.point_item)
-            #del self.point_item
-            #for it in self.scene.items():
-                # TODO fix this - in makes visible even items that are invisible by purpose
-                #it.setVisible(True)
-                #self.touched_sub.unregister()
-            self.touched_sub.unregister()
-            rospy.loginfo("Touch was successfully calibrated.")
+        self.touch_calibration_points_signal.emit()

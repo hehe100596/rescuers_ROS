@@ -24,10 +24,20 @@ Window
     property string building
     property string timer
 
+    property bool calibrating
+    property int calibPointSize
+    property int calibPointX
+    property int calibPointY
+
     difficulty: "Medium"
     players: "1"
     building: "1st Edition"
     timer: "OFF"
+
+    calibrating: false
+    calibPointSize: 0
+    calibPointX: 0
+    calibPointY: 0
 
     width: 1280
     height: 720
@@ -36,6 +46,19 @@ Window
     minimumHeight: 360
 
     title: "RESCUERS - Title Screen"
+
+    function drawPoint (pointSize, pointX, pointY)
+    {
+        window.calibrating = true
+        window.calibPointSize = pointSize
+        window.calibPointX = pointX
+        window.calibPointY = pointY
+    }
+
+    function stopCalibration ()
+    {
+        window.calibrating = false
+    }
 
     function executeMenuButton (operation)
     {
@@ -121,6 +144,35 @@ Window
         MenuButton
         {
             operation: "Exit Game"
+        }
+    }
+
+    Rectangle
+    {
+        visible: window.calibrating
+        color: "black"
+
+        width: parent.width
+        height: parent.height
+
+        MouseArea
+        {
+            enabled: window.calibrating
+            anchors.fill: parent
+        }
+
+        Rectangle
+        {
+            visible: window.calibrating
+            color: "white"
+
+            width: window.calibPointSize
+            height: window.calibPointSize
+
+            radius: width * 0.5
+
+            x: window.calibPointX
+            y: window.calibPointY
         }
     }
 }
