@@ -59,10 +59,10 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
 
         if touching.touch:
             event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonPress, point, QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
-            #QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
+            QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
         else:
             event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonRelease, point, QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
-            #QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
+            QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
 
     def continue_calibration(self, scene):
 
@@ -96,24 +96,23 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         out.setVersion(QtCore.QDataStream.Qt_4_0)
         out.writeUInt32(0)
 
-        # if (self.rootObjects()[0].isVisible()):
-        #     pix = self.rootObjects()[0].grabWindow()
-        #     pix = pix.mirrored()
-        #     img = QtCore.QByteArray()
-        #     buffer = QtCore.QBuffer(img)
-        #     buffer.open(QtCore.QIODevice.WriteOnly)
-        #     pix.save(buffer, "JPG", 95)
-        #     out << img
-
-        screen = QtWidgets.QApplication.primaryScreen().grabWindow(0)
-        crop = QtCore.QRect(0, 0, self.rootObjects()[0].width(), self.rootObjects()[0].height())
-        pix = screen.copy(crop).toImage()
+        pix = self.rootObjects()[0].grabWindow()
         pix = pix.mirrored()
         img = QtCore.QByteArray()
         buffer = QtCore.QBuffer(img)
         buffer.open(QtCore.QIODevice.WriteOnly)
         pix.save(buffer, "JPG", 95)
         out << img
+
+        # screen = QtWidgets.QApplication.primaryScreen().grabWindow(0)
+        # crop = QtCore.QRect(0, 0, self.rootObjects()[0].width(), self.rootObjects()[0].height())
+        # pix = screen.copy(crop).toImage()
+        # pix = pix.mirrored()
+        # img = QtCore.QByteArray()
+        # buffer = QtCore.QBuffer(img)
+        # buffer.open(QtCore.QIODevice.WriteOnly)
+        # pix.save(buffer, "JPG", 95)
+        # out << img
 
         out.device().seek(0)
         out.writeUInt32(block.size() - 4)

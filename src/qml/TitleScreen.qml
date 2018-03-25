@@ -45,7 +45,7 @@ Window
     minimumWidth: 640
     minimumHeight: 360
 
-    title: "RESCUERS - Title Screen"
+    title: "RESCUERS"
 
     function drawPoint (pointSize, pointX, pointY)
     {
@@ -88,20 +88,15 @@ Window
 
     function setupGameWindow ()
     {
-        pageLoader.source = "GameScreen.qml"
-        window.hide ()
+        var component = Qt.createComponent ("GameScreen.qml")
+        var settings = component.createObject (window)
     }
 
     Component.onCompleted:
     {
         setX (Screen.width / 2 - width / 2)
         setY (Screen.height / 2 - height / 2)
-        window.showFullScreen ()
-    }
-
-    Loader
-    {
-        id: pageLoader
+        window.show ()
     }
 
     Image

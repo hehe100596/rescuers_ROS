@@ -16,12 +16,12 @@ import QtQuick.Window 2.0
 import "../javascript/theme.js" as Theme
 import "../javascript/gameboard.js" as GameBoard
 
-Window
+Rectangle
 {
     id: game
 
     visible: true
-    modality: Qt.ApplicationModal
+    enabled: true
 
     property int difficulty
     property int players
@@ -42,15 +42,6 @@ Window
     width: window.width
     height: window.height
 
-    /*minimumWidth: width
-    minimumHeight: height
-
-    maximumWidth: width
-    maximumHeight: height
-
-    x: window.x
-    y: window.y*/
-
     difficulty: window.difficulty === "Easy" ? 1 : window.difficulty === "Medium" ? 2 : 3
     players: parseInt (window.players)
     building: window.building === "1st Edition" ? 0 : 1
@@ -67,21 +58,13 @@ Window
     unloadable: false
     turn: 0
 
-    title: "RESCUERS - Game Screen"
-
-    onVisibleChanged:
-    {
-        window.showFullScreen ()
-        pageLoader.source = ""
-    }
-
     function executeGameButton (operation)
     {
         if (operation === "Pause Game") pauseGame ()
 
         if (operation === "Save Game") showErrorMessage ("Saving and loading is not implemented in this version.")
 
-        if (operation === "Exit Game") game.close ()
+        if (operation === "Exit Game") game.destroy()
     }
 
     function actualizeTimer (actual_time, seconds)
@@ -137,11 +120,9 @@ Window
         gameboard.enabled = false
     }
 
-    Component.onCompleted:
+    MouseArea
     {
-        /*setX (Screen.width / 2 - width / 2)
-        setY (Screen.height / 2 - height / 2)*/
-        game.showFullScreen ()
+        anchors.fill: parent
     }
 
     Image
