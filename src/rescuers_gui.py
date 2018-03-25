@@ -6,10 +6,10 @@ import os
 import sys
 import signal
 import rospy
-from PyQt5 import QtGui, QtWidgets, QtCore, QtNetwork, QtQuick, QtQml
+from PyQt5 import QtGui, QtWidgets, QtCore, QtNetwork, QtQml, QtTest
 from xbacov04.helpers import ProjectorCalibrator, TouchCalibrator
+from art_msgs.msg import Touch
 from OpenGL import GL
-from std_msgs import msg
 
 scriptDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -21,6 +21,7 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         super(RescuersGui, self).__init__()
 
         self.port = scene_server_port
+        self.rpm = rospy.get_param("/art/interface/projected_gui/rpm")
 
         self.tcpServer = QtNetwork.QTcpServer(self)
         if not self.tcpServer.listen(port=self.port):
@@ -45,25 +46,35 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
                 proj.calibrate(self.calibrated_cb)
             else:
                 rospy.loginfo("Projector " + proj.proj_id + " already calibrated.")
-                proj.calib_pub.publish(True)              
-
-        rospy.loginfo("Projector is ready")
+                proj.calib_pub.publish(True)
 
     def calibrated_cb(self, proj):
 
         proj.calib_pub.publish(True)
         rospy.loginfo("Projector " + proj.proj_id + " calibrated: " + str(proj.is_calibrated()))
 
+    def handle_touch(self, touching): # FIND A WAY TO FIX THIS (WHOLE SCREEN, NOT JUST ROOT OBJECT)
+
+        point = QtCore.QPoint(touching.point.point.x*self.rpm, self.rootObjects()[0].height() - touching.point.point.y*self.rpm)
+
+        if touching.touch:
+            event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonPress, point, QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
+            #QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
+        else:
+            event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonRelease, point, QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
+            #QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
+
     def continue_calibration(self, scene):
 
         self.scene = scene
-        self.touches = [TouchCalibrator(self.scene)]
+        self.touches = [TouchCalibrator(self.scene, self.rpm)]
 
         rospy.loginfo("Waiting for touch nodes...")
         for touch in self.touches:
             touch.wait_until_available()
             rospy.loginfo("Starting calibration of touch.")
             touch.calibrate()
+            rospy.Subscriber(touch.touch_ns + "touch", Touch, self.handle_touch)
 
     def new_connection(self):
 
@@ -111,12 +122,11 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
             con.write(block)
 
     def debug_show(self):
-        """Show window with scene - for debugging purposes."""
       
         self.load(QtCore.QUrl(scriptDir + os.path.sep + 'qml/TitleScreen.qml'))
 
 def sigint_handler(*args):
-    """Handler for the SIGINT signal."""
+
     sys.stderr.write('\r')
     QtWidgets.QApplication.quit()
 
@@ -132,6 +142,7 @@ def main(args):
 
     engine = RescuersGui(1234)
     engine.debug_show()
+    engine.quit.connect(app.quit)
 
     timer = QtCore.QTimer()
     timer.start(500)
@@ -141,6 +152,7 @@ def main(args):
 
 
 if __name__ == '__main__':
+
     try:
         main(sys.argv)
     except KeyboardInterrupt:

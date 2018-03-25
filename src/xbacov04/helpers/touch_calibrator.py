@@ -13,14 +13,12 @@ class TouchCalibrator(QtCore.QObject):
 
     touch_calibration_points_signal = QtCore.pyqtSignal()
 
-    def __init__(self, scene):
+    def __init__(self, scene, rpm):
 
         super(TouchCalibrator, self).__init__()
 
         self.scene = scene
-        #self.rpm = rospy.get_param("~rpm")
-        self.rpm = 2000
-
+        self.rpm = rpm
         self.touch_ns = "/art/interface/touchtable/"
         self.touch_calib_ns = "/art/interface/projected_gui/touch_calibration"
 
@@ -65,7 +63,7 @@ class TouchCalibrator(QtCore.QObject):
         self.touch_calibrating = True
 
         try:
-            rospy.loginfo("Switch to application window, wait until white point appears and press it to calibrate touch.")
+            rospy.loginfo("Switch to application window, wait until white point appears on the table and press it to calibrate touch.")
             p = self.touch_calibration_points.pop(0)
             self.scene.drawPoint(0.01*self.rpm, p[0]*self.rpm, self.scene.height() - p[1]*self.rpm)
         except IndexError:
