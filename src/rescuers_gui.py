@@ -96,7 +96,7 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         out.setVersion(QtCore.QDataStream.Qt_4_0)
         out.writeUInt32(0)
 
-        pix = self.rootObjects()[0].grabWindow()
+        pix = self.rootObjects()[0].screen().grabWindow(self.rootObjects()[0].winId()).toImage()
         pix = pix.mirrored()
         img = QtCore.QByteArray()
         buffer = QtCore.QBuffer(img)
@@ -104,15 +104,15 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         pix.save(buffer, "JPG", 95)
         out << img
 
-        # screen = QtWidgets.QApplication.primaryScreen().grabWindow(0)
-        # crop = QtCore.QRect(0, 0, self.rootObjects()[0].width(), self.rootObjects()[0].height())
-        # pix = screen.copy(crop).toImage()
-        # pix = pix.mirrored()
-        # img = QtCore.QByteArray()
-        # buffer = QtCore.QBuffer(img)
-        # buffer.open(QtCore.QIODevice.WriteOnly)
-        # pix.save(buffer, "JPG", 95)
-        # out << img
+        #screen = QtWidgets.QApplication.primaryScreen().grabWindow(0)
+        #crop = QtCore.QRect(0, 0, self.rootObjects()[0].width(), self.rootObjects()[0].height())
+        #pix = screen.copy(crop).toImage()
+        #pix = pix.mirrored()
+        #img = QtCore.QByteArray()
+        #buffer = QtCore.QBuffer(img)
+        #buffer.open(QtCore.QIODevice.WriteOnly)
+        #pix.save(buffer, "JPG", 95)
+        #out << img
 
         out.device().seek(0)
         out.writeUInt32(block.size() - 4)
