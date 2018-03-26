@@ -53,14 +53,16 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         proj.calib_pub.publish(True)
         rospy.loginfo("Projector " + proj.proj_id + " calibrated: " + str(proj.is_calibrated()))
 
-    def handle_touch(self, touching): # FIND A WAY TO FIX THIS (WHOLE SCREEN, NOT JUST ROOT OBJECT)
+    def handle_touch(self, touching):
 
-        point = QtCore.QPoint(touching.point.point.x*self.rpm, self.rootObjects()[0].height() - touching.point.point.y*self.rpm)
+        os.system("xinput disable 8") # SHOULD PROBABLY BE COMMENTED OUT
 
         if touching.touch:
+            point = QtCore.QPoint(touching.point.point.x*self.rpm, self.rootObjects()[0].height() - touching.point.point.y*self.rpm)
             event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonPress, point, QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
             QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
         else:
+            point = QtCore.QPoint(touching.point.point.x*self.rpm, self.rootObjects()[0].height() - touching.point.point.y*self.rpm)
             event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonRelease, point, QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
             QtWidgets.QApplication.postEvent(self.rootObjects()[0], event)
 
@@ -105,8 +107,13 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         out << img
 
         #screen = QtWidgets.QApplication.primaryScreen().grabWindow(0)
-        #crop = QtCore.QRect(0, 0, self.rootObjects()[0].width(), self.rootObjects()[0].height())
-        #pix = screen.copy(crop).toImage()
+        #crop = QtCore.QRect(self.rootObjects()[0].x(), self.rootObjects()[0].y(), self.rootObjects()[0].width(), self.rootObjects()[0].height())
+        #pixmap = screen.copy()
+        #pixmap.fill(QtCore.Qt.black)
+        #painter = QtGui.QPainter(pixmap)
+        #painter.drawImage(crop, screen.copy(crop).toImage())
+        #painter.end()
+        #pix = pixmap.toImage()
         #pix = pix.mirrored()
         #img = QtCore.QByteArray()
         #buffer = QtCore.QBuffer(img)
