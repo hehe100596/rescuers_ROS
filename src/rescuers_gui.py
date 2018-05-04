@@ -22,6 +22,7 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
 
         self.port = scene_server_port
         self.rpm = rospy.get_param("/art/interface/projected_gui/rpm")
+        self.xinput = "USBest Technology SiS HID Touch Controller"
 
         self.tcpServer = QtNetwork.QTcpServer(self)
         if not self.tcpServer.listen(port=self.port):
@@ -55,7 +56,7 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
 
     def handle_touch(self, touching):
 
-        os.system("xinput disable 8") # SHOULD PROBABLY BE COMMENTED OUT
+        os.system("xinput disable '" + self.xinput + "'")
 
         if touching.touch:
             point = QtCore.QPoint(touching.point.point.x*self.rpm, self.rootObjects()[0].height() - touching.point.point.y*self.rpm)
@@ -105,21 +106,6 @@ class RescuersGui(QtQml.QQmlApplicationEngine):
         buffer.open(QtCore.QIODevice.WriteOnly)
         pix.save(buffer, "JPG", 95)
         out << img
-
-        #screen = QtWidgets.QApplication.primaryScreen().grabWindow(0)
-        #crop = QtCore.QRect(self.rootObjects()[0].x(), self.rootObjects()[0].y(), self.rootObjects()[0].width(), self.rootObjects()[0].height())
-        #pixmap = screen.copy()
-        #pixmap.fill(QtCore.Qt.black)
-        #painter = QtGui.QPainter(pixmap)
-        #painter.drawImage(crop, screen.copy(crop).toImage())
-        #painter.end()
-        #pix = pixmap.toImage()
-        #pix = pix.mirrored()
-        #img = QtCore.QByteArray()
-        #buffer = QtCore.QBuffer(img)
-        #buffer.open(QtCore.QIODevice.WriteOnly)
-        #pix.save(buffer, "JPG", 95)
-        #out << img
 
         out.device().seek(0)
         out.writeUInt32(block.size() - 4)
