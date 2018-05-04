@@ -196,7 +196,7 @@ Rectangle
             {
                 range: 4
                 lost: game.dead > range ? range : game.dead
-                label: (range - lost) + " allowed deaths"
+                label: (range - lost) + " death(s) left"
                 fromleft: false
             }
 
